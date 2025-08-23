@@ -10,6 +10,12 @@ import SignupScreen from "./screens/SignUpScreen";
 import HomeScreen from "./screens/HomeScreen";
 import ProfileScreen from "./screens/ProfileScreen"; // Import ProfileScreen if needed
 import ChatScreen from "./screens/ChatScreen";
+import TipScreen from "./screens/TipScreen"; // Import TipScreen if needed
+import EmergencyScreen from "./screens/EmergencyScreen";
+import GuideScreen from "./screens/GuideScreen";
+
+import { I18nextProvider } from "react-i18next";
+import i18n from "./i18n";
 
 const Stack = createNativeStackNavigator();
 
@@ -22,6 +28,7 @@ export default function App() {
   }, []);
 
   return (
+    <I18nextProvider i18n={i18n}>
     <NavigationContainer>
       <Stack.Navigator>
         {user ? (
@@ -29,6 +36,9 @@ export default function App() {
             <Stack.Screen name="Home" component={HomeScreen} />
             <Stack.Screen name="Profile" component={ProfileScreen} />
             <Stack.Screen name="Chat" component={ChatScreen} />
+            <Stack.Screen name="Tips" component={TipScreen} options={{ title: i18n.t("navigation.tips") }}/>
+            <Stack.Screen name="Guides" component={GuideScreen} />
+            <Stack.Screen name="Emergency" component={EmergencyScreen} />
           </>
         ) : (
           <>
@@ -46,5 +56,6 @@ export default function App() {
         )}
       </Stack.Navigator>
     </NavigationContainer>
+    </I18nextProvider>
   );
 }

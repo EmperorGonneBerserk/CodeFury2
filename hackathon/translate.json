@@ -1,0 +1,194 @@
+{
+  "app": {
+    "title": "CyberShield",
+    "tagline": "Stay Safe. Stay Secure.",
+    "description": "An interactive platform to raise awareness, educate, and protect users from cyber threats."
+  },
+  "navigation": {
+    "home": "Home",
+    "learn": "Learn",
+    "quiz": "Quiz",
+    "tips": "Safety Tips",
+    "alerts": "Threat Alerts",
+    "resources": "Resources",
+    "settings": "Settings",
+    "profile": "Profile",
+    "logout": "Logout"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot Password?",
+    "welcomeBack": "Welcome back to CyberShield!",
+    "createAccount": "Create your secure account"
+  },
+  "dashboard": {
+    "welcome": "Welcome, {{name}}!",
+    "yourScore": "Your Cyber Safety Score",
+    "latestAlerts": "Latest Security Alerts",
+    "quickActions": "Quick Actions"
+  },
+  "quiz": {
+    "startQuiz": "Start Quiz",
+    "next": "Next",
+    "previous": "Previous",
+    "submit": "Submit",
+    "yourResult": "Your Result",
+    "correct": "Correct",
+    "wrong": "Wrong",
+    "score": "Your Score: {{score}} / {{total}}"
+  },
+  "tips": {
+    "title": "Cyber Safety Tips",
+    "phishing": "Never click suspicious links or share OTPs.",
+    "passwords": "Use strong, unique passwords and enable two-factor authentication.",
+    "updates": "Keep your apps and devices updated.",
+    "wifi": "Avoid using public Wi-Fi for sensitive transactions.",
+    "sharing": "Be cautious while sharing personal information online."
+  },
+  "alerts": {
+    "noAlerts": "No current cyber threats in your area.",
+    "newThreat": "New Cyber Threat Detected!",
+    "readMore": "Read More"
+  },
+  "buttons": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "update": "Update",
+    "retry": "Retry",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "messages": {
+    "success": "Action completed successfully!",
+    "error": "Something went wrong. Please try again.",
+    "loading": "Loading...",
+    "noData": "No data available",
+    "sessionExpired": "Session expired. Please log in again."
+  },
+  "errors": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email address",
+    "weakPassword": "Password must be stronger",
+    "passwordMismatch": "Passwords do not match",
+    "minLength": "Minimum length is {{count}} characters",
+    "maxLength": "Maximum length is {{count}} characters"
+  },
+  "education": {
+    "title": "Cybersecurity Awareness",
+    "intro": "Learn about different types of cyber threats and how to protect yourself.",
+    "modules": {
+      "phishing": {
+        "title": "Phishing",
+        "description": "Phishing is a scam where attackers trick you into sharing sensitive information such as passwords, OTPs, or bank details.",
+        "example": "Example: Fake email pretending to be your bank asking for login details.",
+        "prevention": "Never click on suspicious links or share personal details via email or SMS."
+      },
+      "malware": {
+        "title": "Malware",
+        "description": "Malware is harmful software designed to damage your device or steal information.",
+        "example": "Example: A free app that secretly installs spyware.",
+        "prevention": "Install apps only from trusted sources and keep antivirus software updated."
+      },
+      "ransomware": {
+        "title": "Ransomware",
+        "description": "Ransomware locks your files and demands payment to unlock them.",
+        "example": "Example: Your computer shows a message demanding Bitcoin to access your files.",
+        "prevention": "Backup your files regularly and avoid downloading attachments from unknown senders."
+      },
+      "identityTheft": {
+        "title": "Identity Theft",
+        "description": "When attackers steal your personal data and use it to commit fraud.",
+        "example": "Example: Someone uses your Aadhaar or PAN card to take a loan.",
+        "prevention": "Avoid oversharing personal information online."
+      },
+      "upiFraud": {
+        "title": "UPI & Payment Frauds",
+        "description": "Scams targeting digital payments, such as fake QR codes or OTP scams.",
+        "example": "Example: A scammer sends you a payment request instead of paying you.",
+        "prevention": "Always verify payment requests and never share OTPs."
+      }
+    }
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "q1": {
+      "question": "What should I do if I suspect a cyber fraud?",
+      "answer": "Immediately stop communication, do not transfer money, and report the incident to the cybercrime helpline or portal (www.cybercrime.gov.in)."
+    },
+    "q2": {
+      "question": "How do I create a strong password?",
+      "answer": "Use a mix of uppercase, lowercase, numbers, and symbols. Avoid common words like 'password' or '12345'."
+    },
+    "q3": {
+      "question": "Is public Wi-Fi safe?",
+      "answer": "No. Public Wi-Fi can be insecure and hackers may steal your data. Use a VPN if you must connect."
+    },
+    "q4": {
+      "question": "What is two-factor authentication?",
+      "answer": "It adds an extra layer of security by requiring a password and a verification code sent to your phone or email."
+    }
+  },
+  "reporting": {
+    "title": "Report a Cybercrime",
+    "instructions": "If you experience or suspect a cybercrime:",
+    "steps": [
+      "Call the Cybercrime Helpline: 1930",
+      "Report online at: www.cybercrime.gov.in",
+      "Collect evidence like screenshots, emails, or transaction details",
+      "Do not delete suspicious messages before reporting"
+    ]
+  },
+  
+  "tips.student.1": "Don’t share your exam login credentials.",
+  "tips.student.2": "Be cautious of fake internship/job offers.",
+  "tips.student.3": "Use strong passwords for online learning portals.",
+  "tips.student.4": "Avoid clicking unknown links in WhatsApp groups.",
+  "tips.student.5": "Back up important assignments to cloud storage.",
+  "tips.student.6": "Log out after using public computers.",
+  "tips.student.7": "Verify scholarship emails before responding.",
+  "tips.student.8": "Report suspicious activity to your teacher immediately.",
+
+  "tips.professional.1": "Don’t share company confidential data online.",
+  "tips.professional.2": "Use multi-factor authentication for work accounts.",
+  "tips.professional.3": "Beware of phishing emails asking for credentials.",
+  "tips.professional.4": "Update your system software regularly.",
+  "tips.professional.5": "Don’t use office Wi-Fi for personal downloads.",
+  "tips.professional.6": "Encrypt sensitive work files before sharing.",
+  "tips.professional.7": "Avoid using personal USB drives on office systems.",
+  "tips.professional.8": "Report security breaches to IT immediately.",
+
+  "tips.homemaker.1": "Be cautious of online shopping frauds.",
+  "tips.homemaker.2": "Don’t share OTPs with delivery agents.",
+  "tips.homemaker.3": "Keep banking apps locked with biometrics.",
+  "tips.homemaker.4": "Verify phone calls claiming to be from banks.",
+  "tips.homemaker.5": "Don’t store PINs on your phone.",
+  "tips.homemaker.6": "Shop only from trusted e-commerce platforms.",
+  "tips.homemaker.7": "Avoid sharing family photos publicly.",
+  "tips.homemaker.8": "Keep emergency contact numbers handy.",
+
+  "tips.rural.1": "Beware of loan scam calls.",
+  "tips.rural.2": "Verify government scheme messages before trusting.",
+  "tips.rural.3": "Do not share Aadhaar OTP with anyone.",
+  "tips.rural.4": "Use official apps for payments, not unknown ones.",
+  "tips.rural.5": "Consult local authorities for subsidy details.",
+  "tips.rural.6": "Don’t trust strangers asking for bank details.",
+  "tips.rural.7": "Use secure apps for online farming sales.",
+  "tips.rural.8": "Report frauds to the nearest police station.",
+
+  "tips.senior.1": "Be cautious of phone scams targeting seniors.",
+  "tips.senior.2": "Avoid clicking unknown links in SMS.",
+  "tips.senior.3": "Use large fonts for safe online banking.",
+  "tips.senior.4": "Ask family for help before installing new apps.",
+  "tips.senior.5": "Don’t share pension details over phone calls.",
+  "tips.senior.6": "Set up trusted contacts for emergencies.",
+  "tips.senior.7": "Keep antivirus updated on devices.",
+  "tips.senior.8": "Be cautious with online medical consultations."
+}
+
+
+

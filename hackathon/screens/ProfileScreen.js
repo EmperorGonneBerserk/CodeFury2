@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { View, Text, Image } from "react-native";
+import { View, Text, Image, Button } from "react-native";
 import { getAuth } from "firebase/auth";
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { getFirestore, doc, getDoc, updateDoc } from "firebase/firestore";
 
-import { db } from "../firebase"; // make sure path is correct
+import { db } from "../firebase";
 
 export default function ProfileScreen() {
   const [profile, setProfile] = useState(null);
+  const [selectedDemo, setSelectedDemo] = useState(null);
   const auth = getAuth();
+  const demographics = ["student", "professional", "homemaker", "rural", "senior"];
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -16,12 +18,30 @@ export default function ProfileScreen() {
         const docRef = doc(db, "users", user.uid);
         const docSnap = await getDoc(docRef);
         if (docSnap.exists()) {
-          setProfile(docSnap.data());
+          const data = docSnap.data();
+          setProfile(data);
+          setSelectedDemo(data.demographic || null);
         }
       }
     };
     fetchProfile();
   }, []);
+
+  const saveDemographic = async () => {
+    const user = auth.currentUser;
+    if (!user || !selectedDemo) return;
+
+    try {
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, {
+        demographic: selectedDemo,
+      });
+      setProfile({ ...profile, demographic: selectedDemo });
+      alert("Demographic updated!");
+    } catch (error) {
+      console.error("Error updating demographic:", error);
+    }
+  };
 
   if (!profile) return <Text>Loading...</Text>;
 
@@ -35,6 +55,18 @@ export default function ProfileScreen() {
       <Text>Email: {profile.email}</Text>
       <Text>Username: {profile.username}</Text>
       <Text>Bio: {profile.bio || "No bio yet"}</Text>
+
+      <Text style={{ marginTop: 20, fontWeight: "bold" }}>Your Demographic:</Text>
+      {demographics.map((demo) => (
+        <Button
+          key={demo}
+          title={demo}
+          color={selectedDemo === demo ? "green" : "blue"}
+          onPress={() => setSelectedDemo(demo)}
+        />
+      ))}
+
+      <Button title="Save Demographic" onPress={saveDemographic} style={{ marginTop: 10 }} />
     </View>
   );
 }

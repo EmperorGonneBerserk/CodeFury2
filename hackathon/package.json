@@ -18,10 +18,13 @@
     "expo-auth-session": "~6.2.1",
     "expo-status-bar": "~2.2.3",
     "firebase": "^12.1.0",
+    "i18next": "^25.4.0",
     "node-fetch": "^3.3.2",
     "react": "19.0.0",
     "react-dom": "19.0.0",
+    "react-i18next": "^15.7.1",
     "react-native": "0.79.5",
+    "react-native-localize": "^3.5.2",
     "react-native-web": "^0.20.0"
   },
   "devDependencies": {
