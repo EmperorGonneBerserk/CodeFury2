@@ -1,0 +1,1332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>India Cyber Crime — Advanced Analytics Dashboard</title>
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- PapaParse for CSV parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      --secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      --accent: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      --dark: #1a1a2e;
+      --darker: #16213e;
+      --light: #ffffff;
+      --glass: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+      --text: #e94560;
+      --text-muted: rgba(255, 255, 255, 0.7);
+      --success: #4ade80;
+      --warning: #fbbf24;
+      --danger: #ef4444;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: var(--dark);
+      background-image: 
+        radial-gradient(circle at 20% 50%, rgba(120, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 40% 80%, rgba(120, 199, 255, 0.3) 0%, transparent 50%);
+      color: var(--light);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .animated-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: -1;
+      background: 
+        linear-gradient(45deg, transparent 30%, rgba(120, 119, 198, 0.1) 50%, transparent 70%),
+        linear-gradient(-45deg, transparent 30%, rgba(255, 119, 198, 0.1) 50%, transparent 70%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+    }
+
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+    }
+
+    @keyframes slideInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.5); }
+      50% { box-shadow: 0 0 40px rgba(102, 126, 234, 0.8); }
+    }
+
+    header {
+      text-align: center;
+      padding: 2rem 1rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--primary);
+      opacity: 0.1;
+      z-index: -1;
+    }
+
+    .title {
+      font-size: clamp(2rem, 5vw, 4rem);
+      font-weight: 800;
+      background: var(--primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+      animation: glow 3s ease-in-out infinite;
+    }
+
+    .subtitle {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    .app {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 1rem 2rem;
+      animation: slideInUp 0.8s ease-out;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 2fr auto auto auto;
+      gap: 1rem;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding: 1.5rem;
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .search-container {
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 12px 20px 12px 50px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--glass-border);
+      border-radius: 25px;
+      color: var(--light);
+      font-size: 16px;
+      transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      background: rgba(255, 255, 255, 0.15);
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+      transform: scale(1.02);
+    }
+
+    .search-input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 18px;
+    }
+
+    .select-container {
+      position: relative;
+    }
+
+    select {
+      appearance: none;
+      padding: 12px 40px 12px 16px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      color: var(--light);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 120px;
+    }
+
+    select:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .select-container::after {
+      content: '▼';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .data-menu {
+      position: relative;
+    }
+
+    .data-btn {
+      padding: 12px 24px;
+      background: var(--accent);
+      border: none;
+      border-radius: 15px;
+      color: var(--light);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3);
+    }
+
+    .data-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 25px rgba(79, 172, 254, 0.5);
+    }
+
+    .dropdown {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      margin-top: 10px;
+      background: var(--glass);
+      backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+      padding: 1rem;
+      min-width: 200px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .dropdown.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown button {
+      width: 100%;
+      padding: 10px 15px;
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      color: var(--light);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 0.5rem;
+    }
+
+    .dropdown button:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(5px);
+    }
+
+    .file-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 15px;
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      color: var(--light);
+    }
+
+    .file-label:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(5px);
+    }
+
+    .map-container {
+      height: 70vh;
+      min-height: 500px;
+      border-radius: 25px;
+      overflow: hidden;
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      box-shadow: var(--shadow);
+      position: relative;
+      margin-bottom: 2rem;
+      animation: slideInUp 0.8s ease-out 0.2s both;
+    }
+
+    #map {
+      height: 100%;
+      border-radius: 25px;
+    }
+
+    .map-legend {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(15px);
+      padding: 15px 20px;
+      border-radius: 15px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      z-index: 1000;
+      min-width: 200px;
+    }
+
+    .legend-title {
+      font-weight: 600;
+      margin-bottom: 10px;
+      color: var(--light);
+      font-size: 14px;
+    }
+
+    .legend-scale {
+      display: flex;
+      gap: 3px;
+      margin-bottom: 8px;
+    }
+
+    .legend-swatch {
+      height: 20px;
+      width: 30px;
+      border-radius: 3px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .legend-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .stats-card {
+      background: var(--glass);
+      backdrop-filter: blur(15px);
+      border: 1px solid var(--glass-border);
+      border-radius: 25px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+      animation: slideInUp 0.8s ease-out 0.4s both;
+    }
+
+    .stats-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: var(--primary);
+    }
+
+    .stats-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(31, 38, 135, 0.5);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .card-title {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--light);
+    }
+
+    .card-badge {
+      padding: 6px 12px;
+      background: var(--accent);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--light);
+    }
+
+    .chart-container {
+      position: relative;
+      height: 300px;
+    }
+
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1.5rem;
+      margin: 2rem 0;
+    }
+
+    .stat-box {
+      text-align: center;
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      transition: all 0.3s ease;
+      animation: slideInUp 0.8s ease-out 0.6s both;
+    }
+
+    .stat-box:hover {
+      transform: translateY(-3px) scale(1.02);
+      animation: pulse 2s infinite;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      background: var(--secondary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .loading {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 200px;
+      color: var(--text-muted);
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--glass-border);
+      border-top: 3px solid var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin-right: 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .tooltip {
+      position: absolute;
+      background: rgba(0, 0, 0, 0.9);
+      color: var(--light);
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 14px;
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .footer-note {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.6;
+      margin-top: 2rem;
+      padding: 1rem;
+      background: var(--glass);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: 15px;
+    }
+
+    @media (max-width: 1024px) {
+      .toolbar {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .summary-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .title {
+        font-size: 2.5rem;
+      }
+      
+      .map-container {
+        height: 50vh;
+      }
+      
+      .summary-stats {
+        grid-template-columns: 1fr;
+      }
+      
+      .map-legend {
+        position: static;
+        margin: 1rem;
+        border-radius: 10px;
+      }
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--dark);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--glass);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--glass-border);
+    }
+
+    /* Leaflet popup styling */
+    .leaflet-popup-content-wrapper {
+      background: rgba(0, 0, 0, 0.9) !important;
+      color: white !important;
+      border-radius: 15px !important;
+      backdrop-filter: blur(10px);
+    }
+
+    .leaflet-popup-tip {
+      background: rgba(0, 0, 0, 0.9) !important;
+    }
+
+    /* Chart.js styling */
+    canvas {
+      border-radius: 15px;
+    }
+  </style>
+</head>
+<body>
+  <div class="animated-bg"></div>
+  
+  <header>
+    <h1 class="title">🛡 India Cyber Crime Analytics</h1>
+    <p class="subtitle">Advanced Interactive Dashboard with Real-time Data Visualization • Explore cyber crime patterns across Indian states and union territories from 2018-2022</p>
+  </header>
+
+  <main class="app">
+    <section class="toolbar">
+      <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input id="search" class="search-input" type="search" placeholder="Search states/UTs... (e.g. Maharashtra, Delhi)" />
+      </div>
+      
+      <div class="select-container">
+        <select id="year"></select>
+      </div>
+      
+      <div class="select-container">
+        <select id="metric">
+          <option value="total">Total Cases</option>
+          <option value="growth">YoY Growth %</option>
+          <option value="per_capita">Cases per 100K</option>
+        </select>
+      </div>
+      
+      <div class="data-menu">
+        <button class="data-btn" onclick="toggleDropdown()">📊 Data Options</button>
+        <div class="dropdown" id="dataDropdown">
+          <label for="file" class="file-label">
+            📁 Upload CSV Data
+          </label>
+          <button id="loadSample" onclick="toggleDropdown()">📈 Load Sample Data</button>
+          <button onclick="exportData()">💾 Export Current Data</button>
+        </div>
+        <input id="file" type="file" accept=".csv" style="display:none" />
+      </div>
+    </section>
+
+    <section class="summary-stats" id="summaryStats">
+      <div class="stat-box">
+        <div class="stat-value" id="totalCases">--</div>
+        <div class="stat-label">Total Cases</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="avgGrowth">--</div>
+        <div class="stat-label">Avg Growth</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="topState">--</div>
+        <div class="stat-label">Highest Cases</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="activeStates">--</div>
+        <div class="stat-label">Active States</div>
+      </div>
+    </section>
+
+    <section class="map-container" aria-label="Interactive choropleth map of India">
+      <div id="map"></div>
+      <div class="map-legend" id="mapLegend">
+        <div class="legend-title">Cases Distribution</div>
+        <div class="legend-scale" id="legendScale"></div>
+        <div class="legend-labels" id="legendLabels"></div>
+      </div>
+    </section>
+
+    <section class="stats-grid">
+      <article class="stats-card">
+        <header class="card-header">
+          <h3 class="card-title">🏆 Top Performing States</h3>
+          <span id="topCaption" class="card-badge">Year: <span id="topYear">2022</span></span>
+        </header>
+        <div class="chart-container">
+          <canvas id="barChart"></canvas>
+        </div>
+      </article>
+      
+      <article class="stats-card">
+        <header class="card-header">
+          <h3 class="card-title">📈 Trend Analysis — <span id="trendState">India (All)</span></h3>
+          <span class="card-badge">2018–2022</span>
+        </header>
+        <div class="chart-container">
+          <canvas id="lineChart"></canvas>
+        </div>
+      </article>
+    </section>
+
+    <div class="footer-note">
+      <p><strong>💡 Pro Tips:</strong> Click any state on the map to view its detailed trend • Hover over chart elements for precise values • Upload your own CSV with columns: State/UT, 2018, 2019, 2020, 2021, 2022</p>
+      <p>Data visualization powered by advanced web technologies • Optimized for desktop and mobile devices</p>
+    </div>
+  </main>
+
+  <script>
+    // Enhanced configuration
+    const INDIA_GEOJSON_URL = 'https://gist.githubusercontent.com/jbrobst/56c13bbbf9d97d187fea01ca62ea5112/raw/e388c4cae20aa53cb5090210a42ebb9b765c0a36/india_states.geojson';
+    
+    const SAMPLE_CSV = "Sl. No.,State/UT,2018,2019,2020,2021,2022\n1,Andhra Pradesh,1310,1674,1462,1468,1530\n2,Arunachal Pradesh,21,25,35,40,39\n3,Assam,2234,2715,3363,4271,4019\n4,Bihar,345,435,552,694,761\n5,Chhattisgarh,561,734,1032,1076,1110\n6,Goa,64,77,99,144,147\n7,Gujarat,1794,2276,3179,3618,3500\n8,Haryana,980,1178,1404,1711,1650\n9,Himachal Pradesh,152,175,226,246,261\n10,Jammu & Kashmir,73,73,289,300,344\n11,Jharkhand,362,374,536,711,895\n12,Karnataka,5036,10047,12020,13424,12000\n13,Kerala,2100,2385,2673,3951,4020\n14,Madhya Pradesh,2352,2970,3961,4994,5134\n15,Maharashtra,2987,3587,5076,5539,5934\n16,Manipur,53,70,117,130,141\n17,Meghalaya,83,107,118,152,160\n18,Mizoram,60,88,122,115,110\n19,Nagaland,34,38,45,52,55\n20,Odisha,1205,1462,2037,2175,2233\n21,Punjab,867,930,1001,1271,1320\n22,Rajasthan,1319,2183,2490,2769,2890\n23,Sikkim,22,31,37,41,39\n24,Tamil Nadu,1627,1930,2588,3086,3210\n25,Telangana,1205,2189,2560,2761,2894\n26,Tripura,83,101,129,149,161\n27,Uttar Pradesh,670,1120,1652,2044,2261\n28,Uttarakhand,199,233,319,351,367\n29,West Bengal,1198,1690,2229,2578,2715\n30,Andaman & Nicobar Islands,18,25,35,42,44\n31,Chandigarh,79,83,95,108,115\n32,Dadra & Nagar Haveli and Daman & Diu,10,12,15,19,22\n33,Delhi,2195,2931,3325,3561,3710\n34,Lakshadweep,1,1,2,2,3\n35,Puducherry,58,62,75,89,94";
+
+    const YEARS = [2018, 2019, 2020, 2021, 2022];
+    
+    // State management
+    let map, statesLayer, indiaGeojson;
+    let barChart, lineChart;
+    let dataRows = [];
+    let currentMetric = 'total';
+
+    // Initialize UI
+    function initializeUI() {
+      const yearSel = document.getElementById('year');
+      YEARS.forEach(y => {
+        const option = document.createElement('option');
+        option.value = y;
+        option.textContent = y;
+        yearSel.appendChild(option);
+      });
+      yearSel.value = '2022';
+
+      // Event listeners
+      document.getElementById('loadSample').addEventListener('click', () => loadCSV(SAMPLE_CSV));
+      document.getElementById('file').addEventListener('change', handleFileUpload);
+      document.getElementById('search').addEventListener('input', handleSearch);
+      document.getElementById('year').addEventListener('change', () => {
+        drawChoropleth();
+        updateCharts();
+        updateSummaryStats();
+      });
+      document.getElementById('metric').addEventListener('change', (e) => {
+        currentMetric = e.target.value;
+        drawChoropleth();
+        updateCharts();
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.data-menu')) {
+          document.getElementById('dataDropdown').classList.remove('show');
+        }
+      });
+    }
+
+    // Enhanced map initialization
+    function initializeMap() {
+      map = L.map('map', {
+        zoomControl: true,
+        attributionControl: true,
+        preferCanvas: true
+      });
+
+      // Dark theme tile layer
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 8,
+        minZoom: 3
+      }).addTo(map);
+
+      // Load GeoJSON with error handling
+      fetch(INDIA_GEOJSON_URL)
+        .then(response => {
+          if (!response.ok) throw new Error('Failed to load GeoJSON');
+          return response.json();
+        })
+        .then(geojson => {
+          indiaGeojson = geojson;
+          loadCSV(SAMPLE_CSV);
+        })
+        .catch(error => {
+          console.error('Error loading GeoJSON:', error);
+          showNotification('Failed to load map data. Please check your connection.', 'error');
+        });
+    }
+
+    // Enhanced choropleth with better styling
+    function drawChoropleth() {
+      if (!indiaGeojson || !dataRows.length) return;
+      
+      const year = parseInt(document.getElementById('year').value, 10);
+      const values = dataRows.map(r => getMetricValue(r, year, currentMetric)).filter(v => v !== null);
+      const colorScale = getAdvancedColorScale(values);
+
+      if (statesLayer) {
+        statesLayer.remove();
+      }
+
+      statesLayer = L.geoJSON(indiaGeojson, {
+        style: feature => {
+          const name = normalize(feature.properties.ST_NM);
+          const row = dataRows.find(r => normalize(r.state) === name);
+          const value = row ? getMetricValue(row, year, currentMetric) : 0;
+          
+          return {
+            weight: 2,
+            color: 'rgba(255, 255, 255, 0.8)',
+            dashArray: '',
+            fillOpacity: 0.8,
+            fillColor: colorScale(value || 0),
+            className: 'state-polygon'
+          };
+        },
+        onEachFeature: (feature, layer) => {
+          const name = feature.properties.ST_NM;
+          const row = dataRows.find(r => normalize(r.state) === normalize(name));
+          const value = row ? getMetricValue(row, year, currentMetric) : 0;
+          
+          // Enhanced popup content
+          const popupContent = `
+            <div style="text-align: center; padding: 10px;">
+              <h4 style="margin: 0 0 10px 0; color: #4facfe;">${name}</h4>
+              <div style="font-size: 18px; font-weight: bold; margin-bottom: 5px;">
+                ${formatValue(value, currentMetric)}
+              </div>
+              <div style="color: #ccc; font-size: 12px;">${year} • ${getMetricLabel(currentMetric)}</div>
+            </div>
+          `;
+          
+          layer.bindPopup(popupContent, {
+            className: 'custom-popup',
+            closeButton: true,
+            autoClose: true
+          });
+          
+          // Enhanced interactions
+          layer.on({
+            mouseover: (e) => {
+              const layer = e.target;
+              layer.setStyle({
+                weight: 4,
+                color: '#4facfe',
+                dashArray: '',
+                fillOpacity: 0.9
+              });
+              layer.bringToFront();
+            },
+            mouseout: (e) => {
+              statesLayer.resetStyle(e.target);
+            },
+            click: (e) => {
+              updateTrend(name);
+              map.fitBounds(e.target.getBounds());
+            }
+          });
+        }
+      }).addTo(map);
+
+      map.fitBounds(statesLayer.getBounds(), { padding: [20, 20] });
+      updateLegend(values, colorScale);
+    }
+
+    // Advanced color scale with better gradients
+    function getAdvancedColorScale(values) {
+      if (!values.length) return () => '#1a1a2e';
+      
+      const max = Math.max(...values, 1);
+      const min = Math.min(...values, 0);
+      const range = max - min || 1;
+      
+      const colors = [
+        '#0f0f23', // Very low - dark blue
+        '#1e3a8a', // Low - blue
+        '#3b82f6', // Medium-low - light blue
+        '#06b6d4', // Medium - cyan
+        '#10b981', // Medium-high - green
+        '#f59e0b', // High - yellow
+        '#ef4444', // Very high - red
+        '#dc2626'  // Extreme - dark red
+      ];
+      
+      return (value) => {
+        if (value === 0) return colors[0];
+        const normalized = (value - min) / range;
+        const index = Math.min(Math.floor(normalized * (colors.length - 1)), colors.length - 1);
+        return colors[index];
+      };
+    }
+
+    // Update legend with smooth gradients
+    function updateLegend(values, colorScale) {
+      if (!values.length) return;
+      
+      const max = Math.max(...values);
+      const min = Math.min(...values);
+      const steps = 5;
+      const stepSize = (max - min) / (steps - 1);
+      
+      const scaleContainer = document.getElementById('legendScale');
+      const labelsContainer = document.getElementById('legendLabels');
+      
+      scaleContainer.innerHTML = '';
+      labelsContainer.innerHTML = '';
+      
+      for (let i = 0; i < steps; i++) {
+        const value = min + (i * stepSize);
+        const swatch = document.createElement('div');
+        swatch.className = 'legend-swatch';
+        swatch.style.backgroundColor = colorScale(value);
+        scaleContainer.appendChild(swatch);
+      }
+      
+      // Add labels
+      const minLabel = document.createElement('span');
+      minLabel.textContent = formatValue(min, currentMetric);
+      const maxLabel = document.createElement('span');
+      maxLabel.textContent = formatValue(max, currentMetric);
+      
+      labelsContainer.appendChild(minLabel);
+      labelsContainer.appendChild(maxLabel);
+    }
+
+    // Enhanced chart updates with animations
+    function updateCharts() {
+      updateBarChart();
+      updateTrend();
+    }
+
+    function updateBarChart() {
+      const year = parseInt(document.getElementById('year').value, 10);
+      const entries = dataRows.map(r => ({
+        state: r.state,
+        value: getMetricValue(r, year, currentMetric) || 0
+      }));
+      
+      entries.sort((a, b) => b.value - a.value);
+      const top = entries.slice(0, 12);
+      
+      const ctx = document.getElementById('barChart');
+      const data = {
+        labels: top.map(d => d.state.length > 15 ? d.state.substring(0, 12) + '...' : d.state),
+        datasets: [{
+          label: getMetricLabel(currentMetric),
+          data: top.map(d => d.value),
+          backgroundColor: top.map((_, i) => {
+            const hue = (i * 30) % 360;
+            return `hsla(${hue}, 70%, 60%, 0.8)`;
+          }),
+          borderColor: top.map((_, i) => {
+            const hue = (i * 30) % 360;
+            return `hsla(${hue}, 70%, 60%, 1)`;
+          }),
+          borderWidth: 2,
+          borderRadius: 8,
+          borderSkipped: false,
+        }]
+      };
+      
+      const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            titleColor: '#4facfe',
+            bodyColor: '#ffffff',
+            borderColor: '#4facfe',
+            borderWidth: 1,
+            cornerRadius: 10,
+            callbacks: {
+              label: (context) => `${context.parsed.y.toLocaleString()} ${getMetricUnit(currentMetric)}`
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { 
+              color: '#ffffff',
+              maxRotation: 45,
+              font: { size: 11 }
+            },
+            grid: { display: false }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { 
+              color: '#ffffff',
+              callback: (value) => formatValue(value, currentMetric, true)
+            },
+            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+          }
+        },
+        animation: {
+          duration: 1000,
+          easing: 'easeInOutQuart'
+        }
+      };
+      
+      if (barChart) barChart.destroy();
+      barChart = new Chart(ctx, { type: 'bar', data, options });
+      document.getElementById('topYear').textContent = year;
+    }
+
+    function updateTrend(stateName = null) {
+      const ctx = document.getElementById('lineChart');
+      const labelEl = document.getElementById('trendState');
+      
+      let row;
+      if (stateName) {
+        row = dataRows.find(r => normalize(r.state) === normalize(stateName));
+        labelEl.textContent = stateName;
+      } else {
+        labelEl.textContent = 'India (All)';
+      }
+
+      const values = YEARS.map(y => {
+        if (row) {
+          return getMetricValue(row, y, currentMetric) || 0;
+        } else {
+          return sumAcrossStates(y);
+        }
+      });
+
+      const data = {
+        labels: YEARS,
+        datasets: [{
+          label: getMetricLabel(currentMetric),
+          data: values,
+          borderColor: '#4facfe',
+          backgroundColor: 'rgba(79, 172, 254, 0.1)',
+          borderWidth: 3,
+          fill: true,
+          tension: 0.4,
+          pointBackgroundColor: '#4facfe',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2,
+          pointRadius: 6,
+          pointHoverRadius: 8,
+          pointHoverBackgroundColor: '#ffffff',
+          pointHoverBorderColor: '#4facfe',
+          pointHoverBorderWidth: 3
+        }]
+      };
+
+      const options = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: 'rgba(0, 0, 0, 0.9)',
+            titleColor: '#4facfe',
+            bodyColor: '#ffffff',
+            borderColor: '#4facfe',
+            borderWidth: 1,
+            cornerRadius: 10,
+            callbacks: {
+              label: (context) => `${context.parsed.y.toLocaleString()} ${getMetricUnit(currentMetric)}`
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: '#ffffff' },
+            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: { 
+              color: '#ffffff',
+              callback: (value) => formatValue(value, currentMetric, true)
+            },
+            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+          }
+        },
+        animation: {
+          duration: 1000,
+          easing: 'easeInOutQuart'
+        }
+      };
+
+      if (lineChart) lineChart.destroy();
+      lineChart = new Chart(ctx, { type: 'line', data, options });
+    }
+
+    // Enhanced summary statistics
+    function updateSummaryStats() {
+      if (!dataRows.length) return;
+      
+      const currentYear = parseInt(document.getElementById('year').value, 10);
+      const total = sumAcrossStates(currentYear);
+      const previousYear = currentYear - 1;
+      const previousTotal = sumAcrossStates(previousYear);
+      const growthRate = previousTotal > 0 ? ((total - previousTotal) / previousTotal * 100) : 0;
+      
+      const topStateData = dataRows.reduce((max, row) => {
+        const value = getMetricValue(row, currentYear, 'total') || 0;
+        return value > max.value ? { state: row.state, value } : max;
+      }, { state: '--', value: 0 });
+      
+      const activeStates = dataRows.filter(r => (getMetricValue(r, currentYear, 'total') || 0) > 0).length;
+
+      // Animate value updates
+      animateValue('totalCases', total.toLocaleString());
+      animateValue('avgGrowth', `${growthRate > 0 ? '+' : ''}${growthRate.toFixed(1)}%`);
+      animateValue('topState', topStateData.state.split(' ')[0]); // Show first word for space
+      animateValue('activeStates', activeStates.toString());
+    }
+
+    function animateValue(elementId, newValue) {
+      const element = document.getElementById(elementId);
+      if (!element) return;
+      
+      element.style.transform = 'scale(0.8)';
+      element.style.opacity = '0.5';
+      
+      setTimeout(() => {
+        element.textContent = newValue;
+        element.style.transform = 'scale(1)';
+        element.style.opacity = '1';
+        element.style.transition = 'all 0.3s ease';
+      }, 150);
+    }
+
+    // Enhanced data loading with validation
+    function handleFileUpload(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        showNotification('File size too large. Please upload a file smaller than 5MB.', 'error');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          loadCSV(e.target.result);
+          showNotification('Data loaded successfully!', 'success');
+        } catch (error) {
+          showNotification('Error loading file. Please check the format.', 'error');
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function loadCSV(csvText) {
+      try {
+        const parsed = Papa.parse(csvText, { 
+          header: true, 
+          skipEmptyLines: true,
+          transformHeader: (header) => header.trim()
+        });
+
+        if (parsed.errors.length > 0) {
+          console.warn('CSV parsing warnings:', parsed.errors);
+        }
+
+        const mapped = parsed.data.map(row => ({
+          state: String(row['State/UT'] || row['State'] || row['STATE'] || row['state'] || '').trim(),
+          y2018: parseNumber(row['2018']),
+          y2019: parseNumber(row['2019']),
+          y2020: parseNumber(row['2020']),
+          y2021: parseNumber(row['2021']),
+          y2022: parseNumber(row['2022'])
+        })).filter(r => r.state && r.state !== '');
+
+        if (mapped.length === 0) {
+          throw new Error('No valid data found');
+        }
+
+        dataRows = mapped;
+        drawChoropleth();
+        updateCharts();
+        updateSummaryStats();
+      } catch (error) {
+        console.error('Error loading CSV:', error);
+        showNotification('Failed to load data. Please check the CSV format.', 'error');
+      }
+    }
+
+    // Utility functions
+    function parseNumber(value) {
+      if (value === null || value === undefined || value === '') return 0;
+      const num = Number(String(value).replace(/[,\s]/g, ''));
+      return isFinite(num) ? Math.max(0, num) : 0;
+    }
+
+    function normalize(str) {
+      return String(str || '').toLowerCase()
+        .replace(/\s+/g, ' ')
+        .replace(/&/g, 'and')
+        .replace(/[^\w\s]/g, '')
+        .trim();
+    }
+
+    function sumAcrossStates(year) {
+      const key = `y${year}`;
+      return dataRows.reduce((sum, row) => sum + (row[key] || 0), 0);
+    }
+
+    function getMetricValue(row, year, metric) {
+      const value = row['y' + year] || 0;
+      
+      switch (metric) {
+        case 'total':
+          return value;
+        case 'growth': {
+          const prevValue = row['y' + (year - 1)] || 0;
+          return prevValue > 0 ? ((value - prevValue) / prevValue * 100) : 0;
+        }
+        case 'per_capita':
+          // Mock per capita calculation (would need population data)
+          return value * 0.1; // Placeholder
+        default:
+          return value;
+      }
+    }
+
+    function formatValue(value, metric, short = false) {
+      if (value === null || value === undefined) return '--';
+      
+      switch (metric) {
+        case 'growth':
+          return `${value > 0 ? '+' : ''}${value.toFixed(1)}%`;
+        case 'per_capita':
+          return value.toFixed(1);
+        default:
+          return short ? 
+            (value >= 1000 ? (value/1000).toFixed(1) + 'K' : value.toString()) :
+            value.toLocaleString();
+      }
+    }
+
+    function getMetricLabel(metric) {
+      switch (metric) {
+        case 'growth': return 'YoY Growth Rate';
+        case 'per_capita': return 'Cases per 100K Population';
+        default: return 'Total Cases';
+      }
+    }
+
+    function getMetricUnit(metric) {
+      switch (metric) {
+        case 'growth': return '%';
+        case 'per_capita': return 'per 100K';
+        default: return 'cases';
+      }
+    }
+
+    // Enhanced search with highlighting
+    function handleSearch(event) {
+      const query = normalize(event.target.value);
+      if (!statesLayer) return;
+
+      statesLayer.eachLayer(layer => {
+        const stateName = normalize(layer.feature.properties.ST_NM);
+        
+        if (query && stateName.includes(query)) {
+          layer.setStyle({
+            weight: 4,
+            color: '#f59e0b',
+            dashArray: '5,5',
+            fillOpacity: 0.9
+          });
+          layer.bringToFront();
+          
+          // Auto-zoom to first match
+          if (query.length > 2) {
+            setTimeout(() => map.fitBounds(layer.getBounds()), 300);
+          }
+        } else {
+          statesLayer.resetStyle(layer);
+        }
+      });
+    }
+
+    // UI helper functions
+    function toggleDropdown() {
+      const dropdown = document.getElementById('dataDropdown');
+      if (dropdown) {
+        dropdown.classList.toggle('show');
+      }
+    }
+    window.toggleDropdown = toggleDropdown;
+
+    function exportData() {
+      if (!dataRows.length) {
+        showNotification('No data to export', 'warning');
+        return;
+      }
+      
+      const csv = Papa.unparse(dataRows);
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `india_cybercrime_data_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      showNotification('Data exported successfully!', 'success');
+    }
+
+    function showNotification(message, type = 'info') {
+      // Create notification element
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 20px;
+        border-radius: 10px;
+        color: white;
+        font-weight: 600;
+        z-index: 10000;
+        max-width: 300px;
+        transform: translateX(400px);
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+      `;
+      
+      const colors = {
+        success: 'rgba(34, 197, 94, 0.9)',
+        error: 'rgba(239, 68, 68, 0.9)',
+        warning: 'rgba(251, 191, 36, 0.9)',
+        info: 'rgba(79, 172, 254, 0.9)'
+      };
+      
+      notification.style.backgroundColor = colors[type] || colors.info;
+      notification.textContent = message;
+      
+      document.body.appendChild(notification);
+      
+      // Animate in
+      setTimeout(() => {
+        notification.style.transform = 'translateX(0)';
+      }, 100);
+      
+      // Auto remove
+      setTimeout(() => {
+        notification.style.transform = 'translateX(400px)';
+        setTimeout(() => notification.remove(), 300);
+      }, 4000);
+    }
+
+    // Initialize application
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeUI();
+      initializeMap();
+      
+      // Add some loading animation
+      setTimeout(() => {
+        document.querySelector('.app').style.opacity = '1';
+      }, 500);
+    });
+
+    // Performance optimization
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(() => {
+        if (map) map.invalidateSize();
+        if (barChart) barChart.resize();
+        if (lineChart) lineChart.resize();
+      }, 250);
+    });
+  </script>
+</body>
+</html>

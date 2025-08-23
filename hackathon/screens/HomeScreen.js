@@ -45,6 +45,9 @@ export default function HomeScreen({ navigation }) {
         💡 Cyber Safety Tip:{"\n\n"}{tip}
       </Text>
       <Button title="Show Another Tip" onPress={loadTip} />
+      <Button title="Go to Threat Feed" onPress={() => navigation.navigate("ThreatFeed")} />
+      <Button title="Take a Quiz" onPress={() => navigation.navigate("Quiz")} /> 
+      <Button title="View HTML Content" onPress={() => navigation.navigate("HTML")} />
     </View>
   );
 }
