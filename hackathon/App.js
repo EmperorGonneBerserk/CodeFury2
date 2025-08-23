@@ -15,18 +15,18 @@ import ChatScreen from "./screens/ChatScreen";
 import TipScreen from "./screens/TipScreen";
 import EmergencyScreen from "./screens/EmergencyScreen";
 import GuideScreen from "./screens/GuideScreen";
+import ThreatFeedScreen from "./screens/ThreatFeedScreen";
+import CommunityScreen from "./screens/CommunityScreen"; // 👈 NEW import
 
 import { I18nextProvider } from "react-i18next";
 import i18n from "./i18n";
-import ThreatFeedScreen from "./screens/ThreatFeedScreen";
 
 // Navigators
 const Stack = createNativeStackNavigator();
 const Drawer = createDrawerNavigator();
 const Tab = createBottomTabNavigator();
 
-
-// Bottom Tabs (Home, Chat, Tips, Emergency)
+// Bottom Tabs (Home, Chat, Tips, Emergency, ThreatFeed)
 function BottomTabs() {
   return (
     <Tab.Navigator>
@@ -43,12 +43,11 @@ function BottomTabs() {
         component={ThreatFeedScreen} 
         options={{ title: i18n.t("navigation.threatFeed") }} 
       />
-      
     </Tab.Navigator>
   );
 }
 
-// Drawer Navigation (wraps Bottom Tabs + Guides + Profile)
+// Drawer Navigation (wraps Bottom Tabs + Guides + Profile + Community)
 function DrawerNavigator() {
   return (
     <Drawer.Navigator>
@@ -59,6 +58,7 @@ function DrawerNavigator() {
       />
       <Drawer.Screen name="Guides" component={GuideScreen} />
       <Drawer.Screen name="Profile" component={ProfileScreen} />
+      <Drawer.Screen name="Community" component={CommunityScreen} /> {/* 👈 NEW */}
     </Drawer.Navigator>
   );
 }
