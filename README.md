@@ -19,12 +19,14 @@ CyberGuard Pro offers:
 - **Real-time scam alerts** to warn users instantly.  
 - **Interactive learning modules** that make cyber safety engaging.  
 - **Community and reporting features** to crowdsource scam information.  
-- **Emergency support** for victims of cyber fraud.  
+- **Emergency support** for victims of cyber fraud.
+- **Cross-platform support** so the app runs on **Android and Web seamlessly**
 
 ---
 
 ## 🔑 Features
 
+- **Cross-Platform Support** 📱 – Built with React Native for smooth Android & Web experience.
 - **Personalized Security Tips** – Curated advice for different demographics.  
 - **Real-Time Scam Alerts** – Instant notifications about trending scams.  
 - **AI-Powered Chatbot** 🤖 – 24/7 assistant for guidance & FAQs.  
@@ -39,7 +41,7 @@ CyberGuard Pro offers:
 ---
 
 ## 🛠️ Tech Stack
-- **Frontend:** React Native  
+- **Frontend:** React Native  (cross-platform for Android & Web)
 - **Backend:** FastAPI  
 - **Database:** Firebase / SQLite  
 - **Other Tools & APIs:**  
