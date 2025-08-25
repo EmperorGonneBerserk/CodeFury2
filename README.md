@@ -1,5 +1,10 @@
 # 🔐 CyberGuard Pro – Cyber Safety & Awareness App
 
+## 🚀 Demo & Links
+
+- **Hosted App:** [CyberGuard Pro Live](https://code-fury2-pm1s.vercel.app/)
+- **Working Demo (Google Drive):** [View Demo](https://drive.google.com/file/d/1EsJ5pfMuyEBF90PJHdz0wwuw6ZSIoRW5/view?usp=drive_link)
+
 CyberGuard Pro is an innovative and adaptable mobile app designed to **raise awareness, educate users, and empower them** to recognize, prevent, and respond to cyber threats.  
 It focuses on **cyber safety for all demographics** including students, professionals, homemakers, rural users, and senior citizens.  
 
