@@ -5,6 +5,21 @@
 - **Hosted App:** [CyberGuard Pro Live](https://code-fury2-pm1s.vercel.app/)
 - **Working Demo (Google Drive):** [View Demo](https://drive.google.com/file/d/1EsJ5pfMuyEBF90PJHdz0wwuw6ZSIoRW5/view?usp=drive_link)
 
+## 📱 Mobile App Screenshots
+
+<p align="center">
+  <img src="hackathon/assets/CyberGuardPro_ReportFraud.jpg" alt="ReportFraud" width="200"/>
+  <img src="hackathon/assets/CyberGuardPro_ThreatFeed.jpg" alt="ThreatFeed" width="200"/>
+  <img src="hackathon/assets/CyberGuardPro_ChatBot.jpg" alt="ChatBot" width="200"/>
+</p>
+
+<p align="center">
+  <img src="hackathon/assets/CyberGuardPro_Emergency(kannada).jpg" alt="Emergency(kannada)" width="200"/>
+  <img src="hackathon/assets/CyberGuardPro_Dashboard.jpg" alt="Dashboard" width="200"/>
+  <img src="hackathon/assets/CyberGuardPro_Community.jpg" alt="Community" width="200"/>
+</p>
+
+
 CyberGuard Pro is an innovative and adaptable mobile app designed to **raise awareness, educate users, and empower them** to recognize, prevent, and respond to cyber threats.  
 It focuses on **cyber safety for all demographics** including students, professionals, homemakers, rural users, and senior citizens.  
 
