@@ -16,19 +16,19 @@ import { auth } from "../firebase";
 import * as AuthSession from "expo-auth-session";
 import { Ionicons } from '@expo/vector-icons';
 
-console.log("hi", AuthSession.makeRedirectUri());
-
 WebBrowser.maybeCompleteAuthSession();
 
 const { width, height } = Dimensions.get('window');
+
+const redirectUri = AuthSession.makeRedirectUri({ useProxy: true });
 
 export default function LoginScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   
   // Expo Google OAuth hook
-  const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
+const [request, response, promptAsync] = Google.useIdTokenAuthRequest({
     clientId: "134061999942-80aonjgeqm20h8mf4bjsrotcukh318ti.apps.googleusercontent.com",
-    redirectUri: "http://localhost:8081",
+    redirectUri,
   });
 
   useEffect(() => {

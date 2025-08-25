@@ -1,14 +1,13 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import * as RNLocalize from "react-native-localize";
+import * as Localization from "expo-localization"; // ✅ use expo-localization
 
 // Import your translations
 import en from "./translate.json";
 import kn from "./translate.kn.json";
 
-// Detect device language
-const locales = RNLocalize.getLocales();
-const deviceLanguage = locales.length > 0 ? locales[0].languageCode : "en";
+// Detect device language (expo-localization gives you full locale string like "en-US")
+const deviceLanguage = Localization.locale?.split("-")[0] ?? "en";
 
 i18n.use(initReactI18next).init({
   compatibilityJSON: "v3",

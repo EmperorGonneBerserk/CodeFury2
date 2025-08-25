@@ -11,10 +11,11 @@ genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 app = FastAPI()
 
-# ✅ Allow frontend (React/React Native) to access FastAPI
+FRONTEND_URL = "https://code-fury2-pm1s.vercel.app"  # your frontend
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # 👈 for dev only, allows all origins
+    allow_origins=[FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
